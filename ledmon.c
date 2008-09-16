@@ -94,4 +94,5 @@ void displayState(unsigned int state) {
     printf("SCROLL");
   }
   printf("\n");
+  fflush(stdout);
 }
