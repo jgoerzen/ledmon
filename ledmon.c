@@ -1,0 +1,57 @@
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+#include <X11/XKBlib.h>
+
+enum {
+  CapsLock = 0,
+  NumLock,
+  ScrollLock
+};
+
+static int xkb_event_base = 0;
+static int xkb_error_base = 0;
+
+void main(void) {
+  Display *disp;
+  Window win;
+  int screen, opcode, state;
+  int maj = XkbMajorVersion;
+  int min = XkbMinorVersion;
+  XkbEvent ev;
+
+  /* Open Display */
+  if ( !(disp = XOpenDisplay(NULL))) {
+    fprintf(stderr, "Can't open display: CHECK DISPLAY VARIABLE\n");
+    exit(1);
+  }
+
+  if (!XkbLibraryVersion(&maj, &min)) {
+    fprintf(stderr, "Couldn't get Xkb library version\n");
+    exit(1);
+  }
+  
+  if (!XkbQueryExtension(disp, &opcode, &xkb_event_base, &xkb_error_base, &maj, &min)) {
+    fprintf(stderr, "XkbQueryExtension error\n");
+    exit(1);
+  }
+
+  if (!XkbSelectEvents(disp, XkbUseCoreKbd, XkbIndicatorStateNotifyMask, 
+                       XkbIndicatorStateNotifyMast)) {
+    fprintf(stderr, "XkbSelectEvents\n");
+    exit(1);
+  }
+
+  XlbGetIndicatorState(disp, XkbUseCoreKdb, &state);
+  displayState(state);
+  
+  win = XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, 200, 300, 5, white,
+                            black);
+  
+  while (1) {
+    XNextEvent(display, &ev.core);
+    if (ev.type == xkb_event_base && ev.any.xkb_type == XkbIndicatorStateNotify) {
+      displayState(ev.indicators.state);
+    }
+  }
+}
