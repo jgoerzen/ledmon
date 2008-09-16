@@ -16,10 +16,10 @@ void displayState(unsigned int state);
 static int xkb_event_base = 0;
 static int xkb_error_base = 0;
 
-void main(void) {
+int main(void) {
   Display *disp;
-  Window win;
-  int screen, opcode, state;
+  int opcode;
+  unsigned int state;
   int maj = XkbMajorVersion;
   int min = XkbMinorVersion;
   XkbEvent ev;
@@ -60,6 +60,7 @@ void main(void) {
       displayState(ev.indicators.state);
     }
   }
+  return 0;
 }
 
 void displayState(unsigned int state) {
@@ -73,5 +74,4 @@ void displayState(unsigned int state) {
     printf("SCROLL");
   }
   printf("\n");
-
 }
